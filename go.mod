@@ -1,3 +1,3 @@
-module github.com/saanvijay/weather-notify
+module github.com/saanvijay/weathernotify
 
 go 1.23.1

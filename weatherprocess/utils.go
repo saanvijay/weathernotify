@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	weathersubs "github.com/saanvijay/weather-notify/weathersubs"
+	weathersubs "github.com/saanvijay/weathernotify/weathersubs"
 )
 
 type Response struct {

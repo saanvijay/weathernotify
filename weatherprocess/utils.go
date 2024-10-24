@@ -13,6 +13,25 @@ type Response struct {
 	Status  int    `json:"status"`
 }
 
+func GetCurrentLocationForecast(w http.ResponseWriter, r *http.Request) {
+	location, err := weathersubs.GetCurrentLocation()
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	forecast, err := weathersubs.GetForeCast(location)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	jsonData, _ := json.MarshalIndent(forecast.Properties.Periods, "", " ")
+
+	fmt.Println(string(jsonData))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
 func GetLocation(w http.ResponseWriter, r *http.Request) {
 	location, err := weathersubs.GetCurrentLocation()
 	if err != nil {

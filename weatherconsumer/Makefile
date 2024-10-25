@@ -11,7 +11,7 @@ ${BINARY}: ${INPUT_FILES}
 
 docker: ${BINARY}
 	@echo '--------- Building $@.... ------'
-	docker build -t weatherconsumer:latest .
+	docker build --platform linux/amd64 --no-cache -t weatherconsumer:latest .
 
 
 clean:

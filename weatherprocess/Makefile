@@ -1,4 +1,4 @@
-BINARY := weather-notify
+BINARY := weatherproducer
 INPUT_FILES := $(wildcard *.go)
 
 all: ${BINARY}
@@ -11,7 +11,7 @@ ${BINARY}: ${INPUT_FILES}
 
 docker: ${BINARY}
 	@echo '--------- Building $@.... ------'
-	docker build -t weathernotify:latest .
+	docker build -t weatherproducer:latest .
 
 
 clean:

@@ -1,5 +1,10 @@
-# Use an Ubuntu base image
+# Base image with qemu support for cross-platform
 FROM ubuntu:22.04
+
+# Install qemu, gcc, and other tools
+RUN apt-get update && \
+    apt-get install -y qemu-user-static gcc libc-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 RUN apt-get update && \
@@ -36,6 +41,5 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o weatherproducer .
 
 EXPOSE 8080
-
 # Run the producer binary by default
 ENTRYPOINT ["/app/weatherproducer"]

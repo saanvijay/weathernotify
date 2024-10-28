@@ -10,7 +10,7 @@ import (
 )
 
 func kafkaProduceForcast() {
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": ":9092"})
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost:9092"})
 	if err != nil {
 		log.Printf("Failed to create kafka producer: %s\n", err)
 	}

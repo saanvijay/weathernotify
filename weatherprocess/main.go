@@ -28,7 +28,7 @@ func main() {
 
 	endpoint := fmt.Sprintf("%s:%s", Host, Port)
 	fmt.Printf("Server listening %s\n", endpoint)
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8000", mux)
 	if err != nil {
 		fmt.Printf("Error starting the server: %s\n", err)
 		return

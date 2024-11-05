@@ -6,42 +6,49 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-      KAFKA_OPTS: "-Dzookeeper.session.timeout=60000"
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+      - "2181:2181"
+    networks:
+      - weather_network
 
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_OPTS: "-Dzookeeper.session.timeout=60000"
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
     ports:
       - "9092:9092"
+      - "9094:9094"
+    networks:
+      - weather_network
 
   producer:
     image: weatherproducer:latest
     platform: linux/amd64
     depends_on:
       - kafka
-    environment:
-      KAFKA_BROKER: kafka:9092
-      KAFKA_TOPICS: Tonight,Afternoon
     ports:
       - "8080:8080"
+    networks:
+      - weather_network
 
   consumer:
     image: weatherconsumer:latest
     platform: linux/amd64
     depends_on:
       - kafka
-    environment:
-      KAFKA_BROKER: kafka:9092
-      KAFKA_TOPICS: Tonight,Afternoon
     ports:
       - "9090:9090"
+    networks:
+      - weather_network
+  
+networks:
+  weather_network:
+    driver: bridge
 

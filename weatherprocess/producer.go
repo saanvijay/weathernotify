@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -18,47 +18,37 @@ type WeatherForecast struct {
 }
 
 func kafkaProduceForcast() {
-	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:9092"})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		// User-specific properties that you must set
+		"bootstrap.servers": "kafka1:19092",
+
+		// Fixed properties
+		"acks": "all"})
+
 	if err != nil {
-		log.Printf("Failed to create kafka producer: %s\n", err)
+		fmt.Printf("Failed to create producer: %s", err)
+		os.Exit(1)
 	}
-	defer producer.Close()
 
-	// Create a ticker that ticks every 1 minute
-	ticker := time.NewTicker(1 * time.Minute)
-	defer ticker.Stop()
-
-	// Event Listener
-	// Listen to all the events on the default events channel
+	// Go-routine to handle message delivery reports and
+	// possibly other event types (errors, stats, etc)
 	go func() {
-		for e := range producer.Events() {
+		for e := range p.Events() {
 			switch ev := e.(type) {
 			case *kafka.Message:
-				// The message delivery report, indicating success or
-				// permanent failure after retries have been exhausted.
-				// Application level retries won't help since the client
-				// is already configured to do that.
-				m := ev
-				if m.TopicPartition.Error != nil {
-					fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Failed to deliver message: %v\n", ev.TopicPartition)
 				} else {
-					fmt.Printf("Delivered message to topic %s [%d] at offset %v and message %s\n",
-						*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset, string(m.Value))
+					fmt.Printf("Produced event to topic %s: key = %-10s value = %s\n",
+						*ev.TopicPartition.Topic, string(ev.Key), string(ev.Value))
 				}
-			case kafka.Error:
-				// Generic client instance-level errors, such as
-				// broker connection failures, authentication issues, etc.
-				//
-				// These errors should generally be considered informational
-				// as the underlying client will automatically try to
-				// recover from any errors encountered, the application
-				// does not need to take action on them.
-				fmt.Printf("Error: %v\n", ev)
-			default:
-				fmt.Printf("Ignored event: %s\n", ev)
 			}
 		}
 	}()
+
+	// Set up a ticker to produce messages every 1 minute
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
 
 	location, err := weathersubs.GetCurrentLocation()
 	if err != nil {
@@ -71,27 +61,21 @@ func kafkaProduceForcast() {
 		return
 	}
 	jsonData, _ := json.MarshalIndent(forecast.Properties.Periods, "", " ")
+	weatherData := string(jsonData)
+	topic := "weather"
 
-	topics := []string{"Afternoon", "Tonight"}
-
-	for {
-		select {
-		case <-ticker.C:
-			for i := 0; i < len(topics); i++ {
-				topic := topics[i]
-				message := string(jsonData)
-				fmt.Printf("Message is %s\n", message)
-				err1 := producer.Produce(&kafka.Message{
-					TopicPartition: kafka.TopicPartition{
-						Topic:     &topic,
-						Partition: kafka.PartitionAny},
-					Value: []byte(message),
-				}, nil)
-				if err1 != nil {
-					log.Printf("Failed to produce message: %s\n", err1)
-				}
-			}
-		}
-		producer.Flush(1 * 1000)
+	err = p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Key:            []byte("forcast"),
+		Value:          []byte(weatherData),
+	}, nil)
+	if err != nil {
+		fmt.Printf("Failed to produce weather message: %s\n", err)
+	} else {
+		fmt.Println("Weather message queued for delivery")
 	}
+
+	// Wait for all messages to be delivered
+	p.Flush(15 * 1000)
+	p.Close()
 }

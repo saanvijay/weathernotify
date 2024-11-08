@@ -46,6 +46,7 @@ func main() {
 			}
 			fmt.Printf("Consumed event from topic %s: key = %-10s value = %s\n",
 				*ev.TopicPartition.Topic, string(ev.Key), string(ev.Value))
+			sendweatherNotifyMail("WeatherNotification", string(ev.Value))
 		}
 	}
 

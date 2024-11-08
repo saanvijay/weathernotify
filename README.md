@@ -1,5 +1,5 @@
-# weathernotify (WIP)
-Notify the bad weather to the subscribed users. It could be rain, it could be snow or it could be a heat wave.
+# weathernotify
+Notify the weather forcast to the email users which are listed in .env file. The forcast data will be fetched for every 12 hour. The location is your current location.
 
 ## Pre-requisites
 1. Docker
@@ -8,15 +8,17 @@ Mac : https://docs.docker.com/desktop/install/mac-install/
 Linux: https://docs.docker.com/desktop/install/linux/
 ```
 
-2. confluent-kafka-go (only for local build)
-```
-go get github.com/confluentinc/confluent-kafka-go/kafka
-Mac: brew install librdkafka 
-Linux: sudo apt-get install librdkafka-dev
-```
+## Create App password for gmail
+In https://myaccount.google.com/security, do you see 2-step verification set to ON? If yes, then visiting https://myaccount.google.com/apppasswords should allow you to set up application specific passwords. 
 
 ## Build
 ```
+Edit .env and add email_ids and app password
+
+FROM_EMAIL_ID="from_email_id"
+FROM_EMAIL_APP_PASS="from_email_id_passwd"
+TO_EMAIL_ID="recipient_email_id"
+
 cd weatherprocess
 make docker
 
@@ -27,6 +29,8 @@ cd weathernotify
 docker-compose up -d
 
 ```
+## Email Notification
+The notification of the weather forcast will be sent to the recipient email which is in .env
 
 ## Test
 ```

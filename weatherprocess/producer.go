@@ -46,36 +46,45 @@ func kafkaProduceForcast() {
 		}
 	}()
 
-	// Set up a ticker to produce messages every 1 minute
-	ticker := time.NewTicker(1 * time.Minute)
+	// Set up a ticker to produce messages every 12 hour
+	ticker := time.NewTicker(12 * time.Hour)
+
+	//ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	location, err := weathersubs.GetCurrentLocation()
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return
-	}
-	forecast, err := weathersubs.GetForeCast(location)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return
-	}
-	jsonData, _ := json.MarshalIndent(forecast.Properties.Periods, "", " ")
-	weatherData := string(jsonData)
-	topic := "weather"
+	for {
+		select {
+		case <-ticker.C:
+			location, err := weathersubs.GetCurrentLocation()
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return
+			}
+			forecast, err := weathersubs.GetForeCast(location)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return
+			}
+			jsonData, _ := json.MarshalIndent(forecast.Properties.Periods, "", " ")
+			weatherData := string(jsonData)
+			topic := "weather"
 
-	err = p.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Key:            []byte("forcast"),
-		Value:          []byte(weatherData),
-	}, nil)
-	if err != nil {
-		fmt.Printf("Failed to produce weather message: %s\n", err)
-	} else {
-		fmt.Println("Weather message queued for delivery")
+			err = p.Produce(&kafka.Message{
+				TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+				Key:            []byte("forcast"),
+				Value:          []byte(weatherData),
+			}, nil)
+			if err != nil {
+				fmt.Printf("Failed to produce weather message: %s\n", err)
+			} else {
+				fmt.Println("Weather message queued for delivery")
+			}
+		}
+
+		// Wait for all messages to be delivered
+		p.Flush(15 * 1000)
+
 	}
 
-	// Wait for all messages to be delivered
-	p.Flush(15 * 1000)
-	p.Close()
+	//p.Close()
 }

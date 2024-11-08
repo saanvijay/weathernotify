@@ -214,3 +214,12 @@ Consumed event from topic weather: key = forcast    value = [
 ]
 ➜  weathernotify
 ```
+
+## Change weather notification for every 'n' minutes or 'm' hours
+https://github.com/saanvijay/weathernotify/blob/11ab5ecdf2335796a4d3b96cab5492626687d62b/weatherprocess/producer.go#L50
+
+## Enhancements
+1. Register the emails in Database
+2. Send the notification for the registered email addressess
+3. Add authentication for REST server
+4. Kafka authentication

@@ -47,8 +47,8 @@ func kafkaProduceForcast() {
 		}
 	}()
 
-	// Set up a ticker to produce messages every EMAIL_NOTITICATION_IN_MINUTES minutes
-	minutes := os.Getenv("EMAIL_NOTITICATION_IN_MINUTES")
+	// Set up a ticker to produce messages every EMAIL_NOTIFICATION_IN_MINUTES minutes
+	minutes := os.Getenv("EMAIL_NOTIFICATION_IN_MINUTES")
 	minutesInt, err := strconv.Atoi(minutes)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

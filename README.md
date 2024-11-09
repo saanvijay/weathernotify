@@ -24,7 +24,7 @@ Edit .env and add email_ids and app password
 FROM_EMAIL_ID="from_email_id"
 FROM_EMAIL_APP_PASS="from_email_id_passwd"
 TO_EMAIL_ID="recipient_email_id"
-EMAIL_NOTITICATION_IN_MINUTES="720" // 720 minutes -> 12 hour
+EMAIL_NOTIFICATION_IN_MINUTES="720" // 720 minutes -> 12 hour
 
 cd weatherprocess
 make docker

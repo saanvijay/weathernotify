@@ -7,6 +7,12 @@ Notify the weather forcast to the email users which are listed in .env file. The
 Mac : https://docs.docker.com/desktop/install/mac-install/
 Linux: https://docs.docker.com/desktop/install/linux/
 ```
+2. confluent-kafka-go
+```
+go get github.com/confluentinc/confluent-kafka-go/kafka
+Mac: brew install librdkafka 
+Linux: sudo apt-get install librdkafka-dev
+```
 
 ## Create App password for gmail
 In https://myaccount.google.com/security, do you see 2-step verification set to ON? If yes, then visiting https://myaccount.google.com/apppasswords should allow you to set up application specific passwords. 

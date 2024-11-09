@@ -18,6 +18,7 @@ Edit .env and add email_ids and app password
 FROM_EMAIL_ID="from_email_id"
 FROM_EMAIL_APP_PASS="from_email_id_passwd"
 TO_EMAIL_ID="recipient_email_id"
+EMAIL_NOTITICATION_IN_MINUTES="720" // 720 minutes -> 12 hour
 
 cd weatherprocess
 make docker
@@ -214,9 +215,6 @@ Consumed event from topic weather: key = forcast    value = [
 ]
 ➜  weathernotify
 ```
-
-## Change weather notification for every 'n' minutes or 'm' hours
-https://github.com/saanvijay/weathernotify/blob/11ab5ecdf2335796a4d3b96cab5492626687d62b/weatherprocess/producer.go#L50
 
 ## Enhancements
 1. Register the emails in Database

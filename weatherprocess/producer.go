@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -46,10 +47,16 @@ func kafkaProduceForcast() {
 		}
 	}()
 
-	// Set up a ticker to produce messages every 12 hour
-	ticker := time.NewTicker(12 * time.Hour)
+	// Set up a ticker to produce messages every EMAIL_NOTITICATION_IN_MINUTES minutes
+	minutes := os.Getenv("EMAIL_NOTITICATION_IN_MINUTES")
+	minutesInt, err := strconv.Atoi(minutes)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	timeInterval := time.Duration(minutesInt) * time.Minute
+	ticker := time.NewTicker(timeInterval)
 
-	//ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
 	for {

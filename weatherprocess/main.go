@@ -15,11 +15,11 @@ func main() {
 	mux.HandleFunc("GET /getforecast/{latitude}/{longitude}", GetForecast)
 	mux.HandleFunc("GET /getcurrentlocationforecast", GetCurrentLocationForecast)
 
-	kafkaProduceForcast()
+	go kafkaProduceForcast()
 
 	endpoint := fmt.Sprintf("%s:%s", Host, Port)
 	fmt.Printf("Server listening %s\n", endpoint)
-	err := http.ListenAndServe(":8000", mux)
+	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		fmt.Printf("Error starting the server: %s\n", err)
 		return
